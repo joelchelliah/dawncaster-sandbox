@@ -1,4 +1,5 @@
 const fs = require("fs");
+const { bold, colors } = require("./utils/formatting");
 
 const file = "data/cards.json";
 const allCards = JSON.parse(fs.readFileSync(file, "utf8"));
@@ -12,6 +13,7 @@ function searchCards(
   // Skip summons, performance, form, hymn, affixes, attunements, ingredients
   const blacklistedCategories = [3, 6, 7, 8, 9, 12, 13, 16];
   const blacklistedExpansions = [0, ...excludedExpansions];
+
   const results = allCards
     .filter(({ category }) => !blacklistedCategories.includes(category))
     .filter(({ expansion }) => !blacklistedExpansions.includes(expansion))
@@ -46,39 +48,34 @@ function searchCards(
   }));
 }
 
-function bold(str) {
-  return `\x1b[1m${str}\x1b[0m`;
-}
-
 function getColor(card) {
-  const reset = "\x1b[0m";
-  const dot = `●${reset}`;
+  const dot = `●`;
 
   switch (card.color) {
     case 1:
-      return `\x1b[32m${dot}`;
+      return colors.green(dot);
     case 2:
-      return `\x1b[38;5;39m${dot}`;
+      return colors.blue(dot);
     case 3:
-      return `\x1b[31m${dot}`;
+      return colors.red(dot);
     case 4:
-      return `\x1b[38;5;129m${dot}`;
+      return colors.purple(dot);
     case 5:
-      return `\x1b[38;5;94m${dot}`;
+      return colors.brown(dot);
     case 6:
-      return `\x1b[38;5;14m${dot}`;
+      return colors.aqua(dot);
     case 7:
-      return `\x1b[37m${dot}`;
+      return colors.white(dot);
     case 8:
-      return `\x1b[38;5;220m${dot}`;
+      return colors.gold(dot);
     case 9:
-      return `\x1b[30m${dot}`;
+      return colors.black(dot);
     case 10:
-      return `\x1b[38;5;208m${dot}`;
+      return colors.orange(dot);
     case 11:
-      return `\x1b[38;5;124m${dot}`;
+      return colors.dark_red(dot);
     default:
-      return `\x1b[37mUNDEF (${card.color})${reset}`;
+      return colors.white(`UNDEF (${card.color})`);
   }
 }
 
