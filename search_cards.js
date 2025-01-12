@@ -143,26 +143,22 @@ function printCards(cards, verbose = false) {
   });
 }
 
-/**
- * Expansions
- * 1 - Core
- * 2 - Metaprogression
- * 3 - Metamorphosis
- * 4 - Core extended
- * 5 - Infinitum
- * 6 - Catalyst
- * 7 - Eclypse
- */
-const excludedExpansions = [];
+const excludedExpansions = [
+  // 1, // Core
+  // 2, // Metaprogression
+  // 3, // Metamorphosis
+  // 4, // Core extended
+  // 5, // Infinitum
+  // 6, // Catalyst
+  // 7, // Eclypse
+];
 
-/**
- * Rarities
- * 0 - Common
- * 1 - Uncommon
- * 2 - Rare
- * 3 - Legendary
- */
-const excludedRarities = [0];
+const excludedRarities = [
+  0, // Common
+  // 1, // Uncommon
+  // 2, // Rare
+  // 3, // Legendary
+];
 
 const excludedCards = [
   "Ritual Contract",
