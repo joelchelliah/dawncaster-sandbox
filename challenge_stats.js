@@ -15,25 +15,32 @@ async function fetchChallengeData() {
       );
       const data = (await detailResponse.json()).challenge;
 
+      const cleanUpWinner = (winner) => {
+        if (!winner) return "ANONYMOUS?!";
+        const trimmed = winner.toLowerCase().trim();
+
+        return trimmed === "deeeef." ? "deeeef" : trimmed;
+      };
+
       impossibleStats.push({
         uid: data.uid,
         name: data.name,
-        winner: data.winners[0]?.toLowerCase().trim(),
+        winner: cleanUpWinner(data.winners[0]),
       });
       hardStats.push({
         uid: data.uid,
         name: data.name,
-        winner: data.winners[1]?.toLowerCase().trim(),
+        winner: cleanUpWinner(data.winners[1]),
       });
       challengingStats.push({
         uid: data.uid,
         name: data.name,
-        winner: data.winners[2]?.toLowerCase().trim(),
+        winner: cleanUpWinner(data.winners[2]),
       });
       normalStats.push({
         uid: data.uid,
         name: data.name,
-        winner: data.winners[3]?.toLowerCase().trim(),
+        winner: cleanUpWinner(data.winners[3]),
       });
     }
 
@@ -57,7 +64,7 @@ async function fetchChallengeData() {
 }
 
 function generateHtml(stats) {
-  const template = fs.readFileSync("template/challenge_stats.html", "utf8");
+  const template = fs.readFileSync("templates/challenge_stats.html", "utf8");
 
   const impossibleProgress = processStats(stats.impossibleStats);
   const hardProgress = processStats(stats.hardStats);

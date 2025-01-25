@@ -24,6 +24,7 @@
     </div>
     <script>
       function createChart(ctx, stats, progress, title) {
+        const winsSeperator = "((WINS))"
         return new Chart(ctx, {
           type: 'line',
           data: {
@@ -50,13 +51,13 @@
                 const totalWins = data[data.length - 1];
 
                 return {
-                  label: `${player} (${totalWins})`,
+                  label: `${player}${winsSeperator}${totalWins}`,
                   data: data,
                   borderWidth: 2,
                   tension: 0.1,
                   fill: false,
                   pointRadius: 0,
-                  pointHoverRadius: 5,
+                  pointHoverRadius: 0,
                   borderColor: color,
                   backgroundColor: color,
                 };
@@ -72,7 +73,24 @@
                 font: { size: 18 }
               },
               legend: {
-                position: 'right',
+                position: 'top',
+                labels: {
+                  generateLabels: function(chart) {
+                    const datasets = chart.data.datasets;
+                    return datasets.map(dataset => {
+                      const [name, wins] = dataset.label.split(winsSeperator);
+                      const thinSpace = "\u2009";
+
+                      return {
+                        text: `${name} (${thinSpace}${wins}${thinSpace}) `,
+                        fillStyle: dataset.backgroundColor,
+                        strokeStyle: 'white',
+                        lineWidth: 1,
+                        hidden: !chart.isDatasetVisible(datasets.indexOf(dataset)),
+                      };
+                    });
+                  }
+                }
               },
             },
             scales: {
