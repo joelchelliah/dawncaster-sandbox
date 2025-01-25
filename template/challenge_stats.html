@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Challenge Stats</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body { margin: 20px; font-family: Arial, sans-serif; }
+      .chart-container { width: 98%; height: 800px; margin: 20px auto; }
+      .chart-container-small { width: 98%; height: 600px; margin: 20px auto; }
+    </style>
+  </head>
+  <body>
+    <div class="chart-container">
+      <canvas id="impossibleChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <canvas id="hardChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <canvas id="challengingChart"></canvas>
+    </div>
+    <div class="chart-container-small">
+      <canvas id="normalChart"></canvas>
+    </div>
+    <script>
+      function createChart(ctx, stats, progress, title) {
+        return new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: stats.map(({ name }) => name),
+            datasets: Object.entries(progress)
+              .sort((a, b) => b[1][b[1].length - 1] - a[1][a[1].length - 1])
+              .slice(0, 10)
+              .map(([player, data], index) => {
+                const color = [
+                  "#FF5733", // coral
+                  "#36A2EB", // blue
+                  "#EE8E30", // orange
+                  "#9966FF", // purple
+                  "#FFCE57", // yellow
+                  "#FF99CC", // light pink
+                  "#00CC99", // green
+                  "#99CC00", // lime
+                  "#CC99FF", // lavender
+                  "#FF66B2", // hot pink
+                  "#66CCCC", // turquoise
+                  "#99CC33", // olive
+                ][index];
+
+                const totalWins = data[data.length - 1];
+
+                return {
+                  label: `${player} (${totalWins})`,
+                  data: data,
+                  borderWidth: 2,
+                  tension: 0.1,
+                  fill: false,
+                  pointRadius: 0,
+                  pointHoverRadius: 5,
+                  borderColor: color,
+                  backgroundColor: color,
+                };
+              })
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: title,
+                font: { size: 18 }
+              },
+              legend: {
+                position: 'right',
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Wins'
+                }
+              },
+              x: {
+                title: {
+                  display: false,
+                },
+                ticks: {
+                  font: {
+                    size: 10
+                  },
+                  maxRotation: 75,
+                  minRotation: 75,
+                }
+              }
+            }
+          }
+        });
+      }
+
+      createChart(document.getElementById('impossibleChart'),
+                 IMPOSSIBLE_STATS,
+                 IMPOSSIBLE_PROGRESS,
+                 'Top 10 🏆 Weekly: Impossible');
+
+      createChart(document.getElementById('hardChart'),
+                 HARD_STATS,
+                 HARD_PROGRESS,
+                 'Top 10 🏆Weekly: Hard');
+
+      createChart(document.getElementById('challengingChart'),
+                 CHALLENGING_STATS,
+                 CHALLENGING_PROGRESS,
+                 'Top 10 🏆 Weekly: Challenging');
+
+      createChart(document.getElementById('normalChart'),
+                 NORMAL_STATS,
+                 NORMAL_PROGRESS,
+                 'Top 10 🏆 Weekly: Normal');
+    </script>
+  </body>
+</html>
