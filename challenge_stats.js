@@ -1,4 +1,8 @@
 const fs = require("fs");
+const { createDir } = require("./utils/file");
+
+const dirName = "data";
+const fileName = `${dirName}/challenge_stats.json`;
 
 async function fetchChallengeData() {
   try {
@@ -51,10 +55,8 @@ async function fetchChallengeData() {
       normalStats,
     };
 
-    fs.writeFileSync(
-      "data/challenge_stats.json",
-      JSON.stringify(statsData, null, 2)
-    );
+    createDir(dirName);
+    fs.writeFileSync(fileName, JSON.stringify(statsData, null, 2));
 
     return statsData;
   } catch (error) {
