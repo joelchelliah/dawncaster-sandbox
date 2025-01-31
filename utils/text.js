@@ -1,6 +1,16 @@
 const BOLD = "\x1b[1m";
 const RESET = "\x1b[0m";
 
+// - - - - - - - Search - - - - - - -
+
+function getKeywords(searchTerms) {
+  const pattern = /,|\s+or\s+/;
+  return searchTerms
+    .join(" ")
+    .split(pattern)
+    .map((keyword) => keyword.trim());
+}
+
 // - - - - - - Formatting - - - - - -
 
 function bold(str) {
@@ -68,4 +78,5 @@ module.exports = {
     orange,
     dark_red,
   },
+  getKeywords,
 };

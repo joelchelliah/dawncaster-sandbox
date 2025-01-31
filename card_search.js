@@ -1,6 +1,8 @@
 const axios = require("axios");
 const fs = require("fs");
-const { bold, colors } = require("./utils/formatting");
+
+const { getExpansion, getRarity, getColor } = require("./utils/card");
+const { bold, getKeywords } = require("./utils/text");
 const { createDir } = require("./utils/file");
 
 const dirName = "data";
@@ -61,13 +63,12 @@ function searchCards(
   excludedCards
 ) {
   // Skip summons, performance, form, hymn, affixes, attunements, ingredients
-  const blacklistedCategories = [3, 6, 7, 8, 9, 12, 13, 16];
-  const blacklistedExpansions = [0, ...excludedExpansions];
+  const excludedCategories = [3, 6, 7, 8, 9, 12, 13, 16];
 
   try {
     const results = JSON.parse(fs.readFileSync(fileName, "utf8"))
-      .filter(({ category }) => !blacklistedCategories.includes(category))
-      .filter(({ expansion }) => !blacklistedExpansions.includes(expansion))
+      .filter(({ category }) => !excludedCategories.includes(category))
+      .filter(({ expansion }) => !excludedExpansions.includes(expansion))
       .filter(({ rarity }) => !excludedRarities.includes(rarity))
       .filter(
         ({ name }) =>
@@ -75,11 +76,11 @@ function searchCards(
             (excludedCard) => excludedCard.toLowerCase() === name.toLowerCase()
           )
       )
-      .filter((card) =>
+      .filter(({ name, description }) =>
         keywords.some(
           (key) =>
-            card.name.toLowerCase().includes(key.toLowerCase()) ||
-            card.description.toLowerCase().includes(key.toLowerCase())
+            name.toLowerCase().includes(key.toLowerCase()) ||
+            description.toLowerCase().includes(key.toLowerCase())
         )
       )
       .sort((a, b) => {
@@ -98,75 +99,7 @@ function searchCards(
       expansion: getExpansion(card),
     }));
   } catch (error) {
-    console.error("Error reading cards file:", error);
     return null;
-  }
-}
-
-function getColor(card) {
-  const dot = `●`;
-
-  switch (card.color) {
-    case 1:
-      return colors.green(dot);
-    case 2:
-      return colors.blue(dot);
-    case 3:
-      return colors.red(dot);
-    case 4:
-      return colors.purple(dot);
-    case 5:
-      return colors.brown(dot);
-    case 6:
-      return colors.aqua(dot);
-    case 7:
-      return colors.white(dot);
-    case 8:
-      return colors.gold(dot);
-    case 9:
-      return colors.black(dot);
-    case 10:
-      return colors.orange(dot);
-    case 11:
-      return colors.dark_red(dot);
-    default:
-      return colors.white(`UNDEF (${card.color})`);
-  }
-}
-
-function getRarity(card) {
-  switch (card.rarity) {
-    case 0:
-      return "🩶";
-    case 1:
-      return "💚";
-    case 2:
-      return "🩵";
-    case 3:
-      return "🤩";
-    default:
-      return "UNKNOWN";
-  }
-}
-
-function getExpansion(card) {
-  switch (card.expansion) {
-    case 1:
-      return "Core";
-    case 2:
-      return "Metaprogression";
-    case 3:
-      return "Metamorphosis";
-    case 4:
-      return "Core Extended";
-    case 5:
-      return "Infinitum";
-    case 6:
-      return "Catalyst";
-    case 7:
-      return "Eclypse";
-    default:
-      return "UNKNOWN";
   }
 }
 
@@ -213,50 +146,26 @@ async function main() {
   }
 
   const excludedExpansions = [
-    // 0, // Conjured cards, side effects, etc...
+    0, // Conjured cards, side effects, etc...
     // 1, // Core
     // 2, // Metaprogression
     // 3, // Metamorphosis
     // 4, // Core extended
-    // 5, // Infinitum
-    // 6, // Catalyst
+    5, // Infinitum
+    6, // Catalyst
     // 7, // Eclypse
   ];
 
   const excludedRarities = [
     0, // Common
-    // 1, // Uncommon
+    1, // Uncommon
     // 2, // Rare
     // 3, // Legendary
   ];
 
-  const excludedCards = [
-    "Ritual Contract",
-    "Mystic Contract",
-    "Feral Weapon",
-    "Daring Contract",
-    "Cunning Contract",
-    "Crimson Contract",
-    "Crafty Contract",
-    "Treaty of Joy",
-    "Encore!",
-    "Elite Prayer",
-    "Alchemic Presence",
-    "Way of the Wise",
-    "Demon Claws",
-    "Celestial Claws",
-    "Elite fireball",
-    "Elite frostbolt",
-    "Elite lightning bolt",
-    "Soulfire Bomb",
-  ];
+  const excludedCards = [];
 
-  const pattern = /,|\s+or\s+/;
-  const keywords = searchTerms
-    .join(" ")
-    .split(pattern)
-    .map((keyword) => keyword.trim());
-
+  const keywords = getKeywords(searchTerms);
   const cards = searchCards(
     keywords,
     excludedExpansions,

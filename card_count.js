@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { bold } = require("./utils/formatting");
+const { bold } = require("./utils/text");
 
 const dirName = "data";
 const fileName = `${dirName}/cards.json`;
