@@ -1,7 +1,12 @@
 const axios = require("axios");
 const fs = require("fs");
 
-const { getExpansion, getRarity, getColor } = require("./utils/card");
+const {
+  getExpansion,
+  getRarity,
+  getColor,
+  getColorName,
+} = require("./utils/card");
 const { bold, getKeywords } = require("./utils/text");
 const { createDir } = require("./utils/file");
 
@@ -95,6 +100,7 @@ function searchCards(
       category: card.category,
       description: card.description,
       color: getColor(card),
+      colorName: getColorName(card),
       rarity: getRarity(card),
       expansion: getExpansion(card),
     }));
@@ -131,37 +137,120 @@ function printCards(cards, verbose = false) {
   });
 }
 
+function printCardsShort(cards) {
+  cards.forEach((card, index) => {
+    if (index === 0 || (index > 0 && card.color != cards[index - 1].color)) {
+      console.log(`${card.colorName}`);
+    }
+    console.log(`${card.rarity} ${card.name}`);
+  });
+}
+
+function printUsage() {
+  console.error("🤨 Please provide search terms!");
+  console.error("Usage:");
+  console.error("  node card_search.js [search terms] [options]");
+  console.error("");
+  console.error("Options:");
+  console.error("  --f           Fetch latest card data");
+  console.error("  --s           Display cards in a compact format");
+  console.error(
+    "  --e<nums>     Exclude expansions (e.g., --e567 excludes Infinitum, Catalyst & Eclypse)"
+  );
+  console.error(
+    "  --r<nums>     Exclude rarities (e.g., --r01 excludes Common and Uncommon)"
+  );
+  console.error("");
+  console.error("Expansion numbers:");
+  console.error("  1: Core");
+  console.error("  2: Metaprogression");
+  console.error("  3: Metamorphosis");
+  console.error("  4: Core Extended");
+  console.error("  5: Infinitum");
+  console.error("  6: Catalyst");
+  console.error("  7: Eclypse");
+  console.error("");
+  console.error("Rarity numbers:");
+  console.error("  0: Common");
+  console.error("  1: Uncommon");
+  console.error("  2: Rare");
+  console.error("  3: Legendary");
+  console.error("");
+  console.error("Examples:");
+  console.error(
+    "  node card_search.js fire                  # All expansions except 0"
+  );
+  console.error(
+    "  node card_search.js legendary --e56       # Exclude Infinitum & Catalyst"
+  );
+  console.error(
+    "  node card_search.js burn --r01            # Exclude Common and Uncommon"
+  );
+  console.error(
+    "  node card_search.js dragon --s --r23      # Exclude Rare and Legendary, short format"
+  );
+}
+
 async function main() {
   const args = process.argv.slice(2);
-  const shouldFetch = args.includes("--fetch");
-  const searchTerms = args.filter((arg) => arg !== "--fetch");
+
+  // Check for various flag combinations
+  const hasFetchFlag = args.some((arg) => arg === "--f");
+  const hasShortFlag = args.some((arg) => arg === "--s");
+  const hasCombinedFlag = args.some((arg) => arg === "--sf" || arg === "--fs");
+
+  const shouldFetch = hasFetchFlag || hasCombinedFlag;
+  const shouldPrintShort = hasShortFlag || hasCombinedFlag;
+
+  // Expansion flags
+  // --e124 means exclude expansions 1, 2, and 4
+  const expansionFlag = args.find((arg) => /^--e\d+$/.test(arg));
+  let explicitlyExcludedExpansions = [];
+
+  if (expansionFlag) {
+    // Extract all individual digits from the flag (e.g., --e124 -> [1,2,4])
+    const expansionDigits = expansionFlag
+      .substring(3)
+      .split("")
+      .map((digit) => parseInt(digit));
+    explicitlyExcludedExpansions = expansionDigits;
+  }
+
+  const excludedExpansions = [
+    0, // Conjured cards excluded by default
+    ...explicitlyExcludedExpansions,
+  ].filter((exp, index, self) => self.indexOf(exp) === index);
+
+  // Rarity flags
+  // --r01 means exclude rarities 0 and 1
+  const rarityFlag = args.find((arg) => /^--r\d+$/.test(arg));
+  let excludedRarities = [];
+
+  if (rarityFlag) {
+    // Extract all individual digits from the flag (e.g., --r01 -> [0,1])
+    const rarityDigits = rarityFlag
+      .substring(3)
+      .split("")
+      .map((digit) => parseInt(digit));
+    excludedRarities = rarityDigits;
+  }
+
+  // Filter out duplicate rarities
+  excludedRarities = excludedRarities.filter(
+    (rarity, index, self) => self.indexOf(rarity) === index
+  );
+
+  // Filter out all flag variations for search terms
+  const searchTerms = args.filter((arg) => !arg.startsWith("--"));
 
   if (shouldFetch) {
     await fetchCards();
   }
 
   if (searchTerms.length === 0) {
-    console.error("🤨 Please provide search terms!");
+    printUsage();
     process.exit(1);
   }
-
-  const excludedExpansions = [
-    0, // Conjured cards, side effects, etc...
-    // 1, // Core
-    // 2, // Metaprogression
-    // 3, // Metamorphosis
-    // 4, // Core extended
-    5, // Infinitum
-    6, // Catalyst
-    // 7, // Eclypse
-  ];
-
-  const excludedRarities = [
-    0, // Common
-    1, // Uncommon
-    // 2, // Rare
-    // 3, // Legendary
-  ];
 
   const excludedCards = [];
 
@@ -179,12 +268,43 @@ async function main() {
   }
 
   console.log(
-    `🎴 Found ${bold(cards.length)} cards matching:\n   [ ${keywords.join(
-      ", "
-    )} ]`
+    `🎴 ${bold(cards.length)} cards matching: [ ${keywords.join(", ")} ]`
   );
 
-  printCards(cards, false);
+  console.log(
+    `Excluded expansions:  [ ${excludedExpansions
+      .map((exp) => expansionsMap[exp])
+      .join(", ")} ]`
+  );
+  console.log(
+    `Excluded rarities:    [ ${excludedRarities
+      .map((rarity) => raritiesMap[rarity])
+      .join(", ")} ]`
+  );
+
+  if (shouldPrintShort) {
+    printCardsShort(cards);
+  } else {
+    printCards(cards, false);
+  }
 }
+
+const expansionsMap = {
+  0: "Conjured/Misc",
+  1: "Core",
+  2: "Metaprogression",
+  3: "Metamorphosis",
+  4: "Core Extended",
+  5: "Infinitum",
+  6: "Catalyst",
+  7: "Eclypse",
+};
+
+const raritiesMap = {
+  0: "Common",
+  1: "Uncommon",
+  2: "Rare",
+  3: "Legendary",
+};
 
 main();
