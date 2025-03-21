@@ -31,6 +31,35 @@ function getColor(card) {
   }
 }
 
+function getColorName(card) {
+  switch (card.color) {
+    case 1:
+      return "Green";
+    case 2:
+      return "Blue";
+    case 3:
+      return "Red";
+    case 4:
+      return "Purple";
+    case 5:
+      return "Brown";
+    case 6:
+      return "Aqua";
+    case 7:
+      return "White";
+    case 8:
+      return "Gold";
+    case 9:
+      return "Black";
+    case 10:
+      return "Orange";
+    case 11:
+      return "Monster";
+    default:
+      return `UNDEF (${card.color})`;
+  }
+}
+
 function getRarity(card) {
   switch (card.rarity) {
     case 0:
@@ -69,6 +98,7 @@ function getExpansion(card) {
 
 module.exports = {
   getColor,
+  getColorName,
   getExpansion,
   getRarity,
 };
