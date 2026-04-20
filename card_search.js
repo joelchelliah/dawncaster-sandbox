@@ -14,7 +14,7 @@ const dirName = "data";
 const fileName = `${dirName}/cards.json`;
 
 async function fetchCards() {
-  const numExpansions = 8;
+  const numExpansions = 9;
   const numBanners = 12;
   const aggregatedCards = [];
 

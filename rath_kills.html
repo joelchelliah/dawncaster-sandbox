@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚔️ Rath Reborn Kills by Player</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #1a1a1a;
+      color: #ffffff;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      color: #ffffff;
+    }
+    .chart-container {
+      position: relative;
+      height: 1150px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚔️ Rath Reborn Kills (Hard)</h1>
+    <div class="chart-container">
+      <canvas id="rathChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const data = [{"player":"thewarden6606","kills":39},{"player":"joeything","kills":7},{"player":"lisicin721558","kills":4},{"player":"low_poly_frog","kills":3},{"player":"silkthewanderer","kills":3},{"player":"coner_","kills":3},{"player":"eviesmummie","kills":3},{"player":"eepytires","kills":2},{"player":"pinegrein","kills":2},{"player":"nyaarla","kills":2},{"player":"argolax","kills":2},{"player":"mikkun2691","kills":1},{"player":"arjun529","kills":1},{"player":"klatuveratanictu","kills":1},{"player":"shewie","kills":1},{"player":"phosphoenix","kills":1},{"player":"alluring_hare_71065","kills":1},{"player":"hamavet_","kills":1},{"player":".metoos","kills":1},{"player":"rofflemywaffle","kills":1},{"player":"roxton","kills":1},{"player":"sam","kills":1},{"player":"ashenamantis","kills":1},{"player":"raptie","kills":1},{"player":"just_be.","kills":1},{"player":"119tayschrenn","kills":1},{"player":"felix._.jaeger","kills":1},{"player":"eviesmummie17","kills":1},{"player":"yelloww.alt_83591","kills":1},{"player":"gristoufle","kills":1},{"player":"Daikkon ","kills":1},{"player":"impulssi.","kills":1},{"player":"mwerneck","kills":1},{"player":"fury0445","kills":1},{"player":"vuongtrilan94","kills":1},{"player":"o0binary0o","kills":1},{"player":"porcupine_z","kills":1},{"player":"macrosis2020","kills":1},{"player":"jackthebloodless","kills":1},{"player":"gawain_w","kills":1},{"player":"t1_tilapia","kills":1},{"player":"merlinofcamelot","kills":1},{"player":"keldi","kills":1},{"player":"agentganon","kills":1},{"player":".wilch","kills":1},{"player":"hankteford","kills":1}];
+
+    // Register the datalabels plugin
+    Chart.register(ChartDataLabels);
+
+    const ctx = document.getElementById('rathChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.player),
+        datasets: [{
+          label: '',
+          data: data.map(d => d.kills),
+          backgroundColor: 'rgba(255, 99, 132, 0.6)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            right: 60
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            labels: {
+              color: '#ffffff'
+            }
+          },
+          datalabels: {
+            anchor: 'end',
+            align: 'end',
+            color: '#ffffff',
+            font: {
+              weight: 'bold',
+              size: 12
+            },
+            formatter: (value) => value
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: {
+              color: '#ffffff',
+              stepSize: 1
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            }
+          },
+          y: {
+            ticks: {
+              color: '#ffffff'
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
